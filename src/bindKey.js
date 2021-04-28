@@ -1,10 +1,11 @@
 // ==UserScript==
 // @name         gitMind-bindKey
 // @namespace    http://tampermonkey.net/
-// @version      1.3
-// @description  gitMind自定义绑定快捷键，插入链接(alt+L)，插入备注(alt+B)，退出弹出窗(esc)
+// @version      1.4
+// @description  gitMind自定义绑定快捷键，插入链接(alt+L)，插入备注(alt+B)，退出弹出窗(esc)，折叠/收缩(alt+Z)
 // @note         2021.04.28 去除流程图的自动保存功能
 // @note         2021.04.28 流程图自动保存功能使用开关形式
+// @note         2021.04.28 脑图增加快捷键折叠/收缩(alt+Z)
 // @author       zhenhuiSu
 // @match        https://gitmind.cn/app/doc/*
 // @match        https://gitmind.cn/app/flowchart/*
@@ -91,6 +92,17 @@
             var remarkEl = $('.icon-beizhu');
             if (remarkEl) {
                 remarkEl.click();
+            }
+        },
+        // 00190 alt Z
+        190: function () {
+            var expendEl = $('.icon-zhankai');
+            var shrinkEl = $('.icon-shouqi');
+            if (expendEl) {
+                expendEl.click();
+            }
+            if (shrinkEl) {
+                shrinkEl.click();
             }
         }
     }
