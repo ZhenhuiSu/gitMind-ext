@@ -1,9 +1,10 @@
 // ==UserScript==
 // @name         gitMind-bindKey
 // @namespace    http://tampermonkey.net/
-// @version      1.2
+// @version      1.3
 // @description  gitMind自定义绑定快捷键，插入链接(alt+L)，插入备注(alt+B)，退出弹出窗(esc)
 // @note         2021.04.28 去除流程图的自动保存功能
+// @note         2021.04.28 流程图自动保存功能使用开关形式
 // @author       zhenhuiSu
 // @match        https://gitmind.cn/app/doc/*
 // @match        https://gitmind.cn/app/flowchart/*
@@ -11,17 +12,55 @@
 // @require https://cdn.jsdelivr.net/npm/jquery@1.5.1/dist/node-jquery.min.js
 // ==/UserScript==
 (function () {
+    window.myGitMind = {};
     if (location.pathname.indexOf('flowchart') >= 0) {
-        // 设置打开页面多久后清除自动保存功能，默认10秒（10000毫秒）
-        // 如果发现依旧存在自动保存功能，需要调大这个值
-        var timeout = 10000;
-        setTimeout(function() {
-            window.flowchartBridge.autoSaveFile = function() {};
-            var editorContainerVue = searchVueByDomClassName(window.app, 'editor-container');
-            if (editorContainerVue) {
-                editorContainerVue.throttleSaveFile = function() {};
+        var timeout = 1000;
+        var addDom4CloseAutoSave = function() {
+            window.myGitMind.isAutoSaveFile = true;
+            var menus = $('.menus-outer.is-left');
+            var sourceNode = menus[0].children[0];
+            var attributeNames = sourceNode.getAttributeNames();
+            var closeAutoSaveBtn = $('<li></li>').addClass("menus-list is-left menus-list is-left iconfont closeAutoSaveFile");
+            var closeAutoSaveBtnEl = closeAutoSaveBtn[0];
+            for (var i = 0; i < attributeNames.length; i++) {
+                if (attributeNames[i] !== 'class') {
+                    closeAutoSaveBtnEl.setAttribute(attributeNames[i], sourceNode.getAttribute(attributeNames[i]))
+                }
             }
-        }, timeout);
+            closeAutoSaveBtnEl.append('关闭自动保存');
+            closeAutoSaveBtn.click(function() {
+                var editorContainerVue = searchVueByDomClassName(window.app, 'editor-container');
+                if (!editorContainerVue) return;
+                if (window.myGitMind.isAutoSaveFile) {
+                    // 关闭自动保存
+                    // 缓存window.flowchartBridge.autoSaveFile
+                    window.myGitMind.autoSaveFileFn = window.flowchartBridge.autoSaveFile;
+                    window.flowchartBridge.autoSaveFile = function() {};
+                    // 缓存editorContainerVue.throttleSaveFile
+                    window.myGitMind.throttleSaveFileFn = editorContainerVue.throttleSaveFile;
+                    editorContainerVue.throttleSaveFile = function() {};
+                    closeAutoSaveBtnEl.innerHTML = '开启自动保存';
+                    window.myGitMind.isAutoSaveFile = false;
+                } else {
+                    // 开启自动保存
+                    // 恢复window.flowchartBridge.autoSaveFile
+                    window.flowchartBridge.autoSaveFile = window.myGitMind.autoSaveFileFn;
+                    // 恢复editorContainerVue.throttleSaveFile
+                    editorContainerVue.throttleSaveFile = window.myGitMind.throttleSaveFileFn;
+                    closeAutoSaveBtnEl.innerHTML = '关闭自动保存';
+                    window.myGitMind.isAutoSaveFile = true;
+                }
+            });
+            menus.append(closeAutoSaveBtnEl);
+        };
+        var timeoutFn = function() {
+             if ($('.menus-outer.is-left')) {
+                addDom4CloseAutoSave();
+            } else {
+                setTimeout(timeoutFn, timeout);
+            }
+        };
+        setTimeout(timeoutFn, timeout)
     } else {
         bindHotKey();
     }
