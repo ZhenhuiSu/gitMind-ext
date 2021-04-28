@@ -1,15 +1,30 @@
 // ==UserScript==
 // @name         gitMind-bindKey
 // @namespace    http://tampermonkey.net/
-// @version      1.1
+// @version      1.2
 // @description  gitMind自定义绑定快捷键，插入链接(alt+L)，插入备注(alt+B)，退出弹出窗(esc)
+// @note         2021.04.28 去除流程图的自动保存功能
 // @author       zhenhuiSu
 // @match        https://gitmind.cn/app/doc/*
+// @match        https://gitmind.cn/app/flowchart/*
 // @grant        none
 // @require https://cdn.jsdelivr.net/npm/jquery@1.5.1/dist/node-jquery.min.js
 // ==/UserScript==
 (function () {
-    bindHotKey();
+    if (location.pathname.indexOf('flowchart') >= 0) {
+        // 设置打开页面多久后清除自动保存功能，默认10秒（10000毫秒）
+        // 如果发现依旧存在自动保存功能，需要调大这个值
+        var timeout = 10000;
+        setTimeout(function() {
+            window.flowchartBridge.autoSaveFile = function() {};
+            var editorContainerVue = searchVueByDomClassName(window.app, 'editor-container');
+            if (editorContainerVue) {
+                editorContainerVue.throttleSaveFile = function() {};
+            }
+        }, timeout);
+    } else {
+        bindHotKey();
+    }
 
     // ctrl shift alt key
     var bindMap = {
@@ -58,5 +73,22 @@
         key = (key * 10) + e.altKey;
         key = (key * 100) + e.keyCode;
         return bindMap[key];
+    }
+
+    function searchVueByDomClassName(root, className) {
+        var isVue = root && root._isVue;
+        if (!isVue) return null;
+        if (root.$el && root.$el.className === className) return root;
+        var children = root.$children;
+        var result;
+        if (children) {
+            for (var i = 0; i < children.length; i++) {
+                result = searchVueByDomClassName(children[i], className);
+                if (result) {
+                    return result;
+                }
+            }
+        }
+        return null;
     }
 })();
