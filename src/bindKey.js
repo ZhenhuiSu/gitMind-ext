@@ -89,7 +89,7 @@
         },
         // 00176 alt L
         176: function () {
-            var remarkEl = $('.icon-beizhu');
+            var remarkEl = $('.icon-link');
             if (remarkEl) {
                 remarkEl.click();
             }
