@@ -1,11 +1,14 @@
 // ==UserScript==
 // @name         gitMind-bindKey
 // @namespace    http://tampermonkey.net/
-// @version      1.4
-// @description  gitMind自定义绑定快捷键，插入链接(alt+L)，插入备注(alt+B)，退出弹出窗(esc)，折叠/收缩(alt+Z)
+// @version      1.5
+// @description  完善gitMind部分功能
+// @feature      脑图-快捷键：插入链接(alt+L)，插入备注(alt+B)，退出弹出窗(esc)，折叠/收缩(alt+Z)
+// @feature      流程图-开关：自动保存功能(官方功能保存时节点焦点丢失问题)
 // @note         2021.04.28 去除流程图的自动保存功能
 // @note         2021.04.28 流程图自动保存功能使用开关形式
 // @note         2021.04.28 脑图增加快捷键折叠/收缩(alt+Z)
+// @note         2021.04.28 修复keyCode超过100时出现的快捷键误判
 // @author       zhenhuiSu
 // @match        https://gitmind.cn/app/doc/*
 // @match        https://gitmind.cn/app/flowchart/*
@@ -68,8 +71,9 @@
 
     // ctrl shift alt key
     var bindMap = {
-        // 00027 ESC
+        // 000027 ESC
         27: function () {
+            // gitMind内置快捷键绑定的窗口，退出弹出窗后需要使该组件获取焦点，否则内置快捷键将不可用
             var qlEditor = $('.ql-editor');
             var remarkPop = $('.ne-title');
             if (remarkPop) {
@@ -80,22 +84,22 @@
                 qlEditor.focus();
             }
         },
-        // 00166 alt B
-        166: function () {
+        // 001066 alt B
+        1066: function () {
             var remarkEl = $('.icon-beizhu');
             if (remarkEl) {
                 remarkEl.click();
             }
         },
-        // 00176 alt L
-        176: function () {
+        // 001076 alt L
+        1076: function () {
             var remarkEl = $('.icon-link');
             if (remarkEl) {
                 remarkEl.click();
             }
         },
-        // 00190 alt Z
-        190: function () {
+        // 001090 alt Z
+        1090: function () {
             var expendEl = $('.icon-zhankai');
             var shrinkEl = $('.icon-shouqi');
             if (expendEl) {
@@ -109,9 +113,9 @@
 
     function bindHotKey() {
         document.onkeydown = function () {
-            // gitMind内置快捷键绑定的窗口，退出弹出窗后需要使该组件获取焦点，否则内置快捷键将不可用
             var fun = choiceFun(window.event);
             if (fun) {
+                debugger
                 fun.apply();
             }
         };
@@ -122,7 +126,7 @@
         key = key + e.ctrlKey;
         key = (key * 10) + e.shiftKey;
         key = (key * 10) + e.altKey;
-        key = (key * 100) + e.keyCode;
+        key = (key * 1000) + e.keyCode;
         return bindMap[key];
     }
 
