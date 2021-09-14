@@ -6,5 +6,5 @@ gitMind扩展插件
 - 退出弹出窗(esc)
 
 TODO：
-备注支持markdown渲染
-增加alt+Left使节点成为父节点的兄弟节点
+- 备注支持markdown渲染
+- 增加alt+Left使节点成为父节点的兄弟节点
