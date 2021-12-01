@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         gitMind-ext
 // @namespace    http://tampermonkey.net/
-// @version      2.1
+// @version      2.2
 // @description  gitMind扩展插件
 // @feature      gitMind扩展插件，支持左/右移节点，自定义快捷键，markdown渲染
 // @note         2021.04.28 去除流程图的自动保存功能
@@ -16,6 +16,7 @@
 // @note         2021.09.18 增加自定义快捷键功能
 // @note         2021.12.01 适配官方新增的设备按钮
 // @note         2021.12.01 增加转置节点(Alt Shift T)
+// @note         2021.12.01 增加插件测试(Ctrl Alt Shift G)
 // @author       ZhenhuiSu
 // @match        https://gitmind.cn/app/doc/*
 // @run-at       document-end
@@ -85,6 +86,7 @@
             "nodeMoveRight": {code: 1039, fun: nodeMoveRight},
             "renderMarkdown": {code: 1077, fun: renderMarkdown},
             "transposeNode": {code: 11084, fun: transposeNode},
+            "testExt": {code: 111071, fun: testExt},
             "appendChildNode": {code: 0, fun: appendChildNode},
             "appendSiblingNode": {code: 0, fun: appendSiblingNode},
             "appendParentNode": {code: 0, fun: appendParentNode},
@@ -391,6 +393,15 @@
         if (gmExt.container) {
             gmExt.container.saveFile();
         }
+    }
+
+    /**
+     * 测试插件可用
+     *
+     * Ctrl Shift Alt G
+     */
+    function testExt() {
+        alert('欢迎使用Gitmind-Ext');
     }
 
     //----------------------------original shortcut----------------------------//
@@ -817,6 +828,7 @@
             '- **右移节点（Alt+Right）**\n' +
             '- **渲染markdown（Alt+M）**\n' +
             '在新标签页渲染备注以[markdown]/n(回车)开头的内容\n' +
+            '- **转置节点（Alt+Shift+T）**\n' +
             '- **自定义原生快捷键**\n' +
             '点击快捷键按钮，在具体功能输入自定义快捷键，保存即可。恢复原生快捷键时清空输入框并保存即可。\n' +
             '\n' +
