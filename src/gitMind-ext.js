@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         gitMind-ext
 // @namespace    http://tampermonkey.net/
-// @version      2.0
+// @version      2.1
 // @description  gitMind扩展插件
 // @feature      gitMind扩展插件，支持左/右移节点，自定义快捷键，markdown渲染
 // @note         2021.04.28 去除流程图的自动保存功能
@@ -14,6 +14,8 @@
 // @note         2021.09.18 增加左移节点(Alt Left)，右移节点(Alt Right)
 // @note         2021.09.18 重构逻辑
 // @note         2021.09.18 增加自定义快捷键功能
+// @note         2021.12.01 适配官方新增的设备按钮
+// @note         2021.12.01 增加转置节点(Alt Shift T)
 // @author       ZhenhuiSu
 // @match        https://gitmind.cn/app/doc/*
 // @run-at       document-end
@@ -81,6 +83,7 @@
             "nodeMoveLeft": {code: 1037, fun: nodeMoveLeft},
             "nodeMoveRight": {code: 1039, fun: nodeMoveRight},
             "renderMarkdown": {code: 1077, fun: renderMarkdown},
+            "transposeNode": {code: 11084, fun: transposeNode},
             "appendChildNode": {code: 0, fun: appendChildNode},
             "appendSiblingNode": {code: 0, fun: appendSiblingNode},
             "appendParentNode": {code: 0, fun: appendParentNode},
@@ -101,6 +104,7 @@
         // 从cookie加载数据
         loadDataFromCookie();
         // 初始化空的自定义快捷键并保存到cookie
+        let customShortcuts = gmExt.cookie.customShortcuts;
         if (!gmExt.cookie.customShortcuts) {
             let customShortcuts = {};
             for (let key in gmExt.featureCodeNameMap) {
@@ -328,6 +332,64 @@
         markdownWin.innerHTML = markedContent(markdownStr);
         newWin.focus();
         newWin.document.title = "markdown";
+    }
+
+    /**
+     * 转置节点
+     *
+     * Ctrl Shift T
+     */
+    function transposeNode() {
+        let selectedNodes = getSelectedNodes();
+        if (!selectedNodes) {
+            return;
+        }
+        for (let i = 0; i < selectedNodes.length; i++) {
+            if (!selectedNodes[i].data) {
+                continue;
+            }
+            let val = selectedNodes[i].data.text;
+            let isHorizontal = true;
+            for (let idx in val) {
+                if ("\n" === val[idx]) {
+                    isHorizontal = false;
+                    break;
+                }
+            }
+            let text = "";
+            let html = "";
+            if (isHorizontal) {
+                for (let idx in val) {
+                    if ("\n" === val[idx]) {
+                        continue;
+                    }
+                    text += val[idx] + "\n";
+
+                    html += "<p>" + val[idx] + "</p>";
+                }
+            } else {
+                for (let idx in val) {
+                    if ("\n" === val[idx]) {
+                        continue;
+                    }
+                    text += val[idx];
+                }
+                html = "<p>" + text + "</p>";
+            }
+            selectedNodes[i].data.text = text;
+            selectedNodes[i].data.html = html;
+        }
+        getMinder().renderNodeBatch(selectedNodes);
+        getMinder().layout();
+        if (!gmExt.container) {
+            let container = searchVueByDomClassName(window.app, 'editor-container');
+            if (container) {
+                gmExt.container = container;
+            }
+        }
+        if (gmExt.container) {
+            gmExt.container.saveFile();
+        }
     }
 
     //----------------------------original shortcut----------------------------//
