@@ -20,10 +20,11 @@
 // @match        https://gitmind.cn/app/doc/*
 // @run-at       document-end
 // @grant        none
+// @license MIT
 // @require https://cdn.jsdelivr.net/npm/jquery@1.5.1/dist/node-jquery.min.js
 // @require https://cdn.jsdelivr.net/npm/jquery.cookie@1.4.1/jquery.cookie.min.js
 // @require https://cdn.jsdelivr.net/npm/keycode@2.2.0/index.min.js
-// @require https://cdn.jsdelivr.net/npm/marked/marked.min.js
+// @require https://cdn.jsdelivr.net/npm/marked@4.0.5/marked.min.js
 // ==/UserScript==
 (function () {
     'use strict';
