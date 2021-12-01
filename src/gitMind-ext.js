@@ -16,6 +16,7 @@
 // @note         2021.09.18 增加自定义快捷键功能
 // @author       ZhenhuiSu
 // @match        https://gitmind.cn/app/doc/*
+// @run-at       document-end
 // @grant        none
 // @require https://cdn.jsdelivr.net/npm/jquery@1.5.1/dist/node-jquery.min.js
 // @require https://cdn.jsdelivr.net/npm/jquery.cookie@1.4.1/jquery.cookie.min.js
@@ -35,7 +36,7 @@
         border-image: initial;
         width: 80px;
     }
-    
+
     .shortcut-list ul li ul li button {
         box-sizing: border-box;
         margin: 0;
@@ -133,12 +134,16 @@
      */
     function bindSupportClick() {
         setTimeout(() => {
-            $('div.support-btn>.icon-help').click(() => {
+            $('div.support-btn>.icon-help').mouseenter(() => {
                 setTimeout(() => {
-                    let shortcutLi = $('div.support-list>ul>li');
+                    if($('div.support-list>ul>li.gm-ext')[0]) {
+                        return;
+                    }
+                    let shortcutLi = $('div.support-list>ul>li:first');
                     // 增加GM-ext插件按钮
                     let extHelpLi = shortcutLi.clone();
                     extHelpLi.html('GM-ext插件');
+                    extHelpLi.addClass('gm-ext');
                     extHelpLi.click(() => {
                         gmExt.openExtHelp = true;
                         shortcutLi.click();
@@ -148,7 +153,7 @@
                     shortcutLi.click(helpShortcutClick);
                 }, gmExt.globalTimeout);
             });
-        }, gmExt.globalTimeout);
+        }, gmExt.globalTimeout * 10);
     }
 
     /**
@@ -734,7 +739,7 @@
             smartLists: true,
             smartypants: true
         });
-        return marked(content);
+        return marked.parse(content);
     }
 
     /**
