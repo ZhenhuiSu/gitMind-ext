@@ -835,7 +835,7 @@
             '本人非专业前端开发，美观方面无能为力了\\~.\\~。\n' +
             '扩展插件作为官方尚未实现功能的部分补充，用于提升使用的舒适感。\n' +
             'github：[https://github.com/ZhenhuiSu/gitMind-ext](https://github.com/ZhenhuiSu/gitMind-ext "gitMind-ext")\n' +
-            '欢迎PR，感谢start。';
+            '欢迎PR，感谢star。';
     }
 
     /**
